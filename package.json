@@ -50,9 +50,7 @@
     "nib": "^1.1.2",
     "run-sequence": "^1.2.2",
     "streamqueue": "^1.1.1",
-    "through": "^2.3.8"
-  },
-  "devDependencies": {
-    "browser-sync": "^2.16.0"
+    "through": "^2.3.8",
+	"browser-sync": "^2.16.0"
   }
 }
