@@ -1,12 +1,12 @@
 {
   "name": "creonit-markup",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Markup",
   "author": "Creonit <info@creonit.ru>",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-	"install": "cp gulpfile.js ../../gulpfile.js && cp .gitignore ../../.gitignore"
+	"install": "cp gulpfile.js ../../gulpfile.js"
   },
   "build": {
     "source": {
