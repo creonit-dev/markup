@@ -1,7 +1,7 @@
 {
-  "name": "creonit.markup",
+  "name": "creonit-markup",
   "version": "1.0.0",
-  "description": "Markup template",
+  "description": "Markup",
   "author": "Creonit <info@creonit.ru>",
   "license": "MIT",
   "main": "index.js",
