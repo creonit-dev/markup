@@ -270,7 +270,7 @@ module.exports = {
 			}
 
 			var stream = gulp.src(config.source.html + '/*.twig')
-				.pipe(twig({data: JSON.parse(fs.readFileSync(config.source.html + '/data.json'))}))
+				.pipe(twig(/*{data: JSON.parse(fs.readFileSync(config.source.html + '/data.json'))}*/))
 				.on('error', console.log)
 				.pipe(gulp.dest(config.destination.html));
 
