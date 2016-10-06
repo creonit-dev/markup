@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-	"install": "npm i gulp --save"
+	"install": "cp gulpfile.js ../../gulpfile.js && cp .gitignore ../../.gitignore"
   },
   "build": {
     "source": {
@@ -31,6 +31,7 @@
     "external": false
   },
   "dependencies": {
+	"gulp": "^3.9.1",
     "gulp-cheerio": "^0.6.2",
     "gulp-concat": "^2.6.0",
     "gulp-cssmin": "^0.1.7",
