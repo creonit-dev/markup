@@ -24,6 +24,7 @@ module.exports = {
 		var replace = require('gulp-replace');
 		var through = require('through');
 		var imageResize = require('gulp-image-resize');
+		var rename = require('gulp-rename');
 		var spritesStorage;
 		var svgStorage;
 
@@ -139,11 +140,11 @@ module.exports = {
 				})
 				.map(function(folder){
 					gulp.src(path.join(dir, folder, '/*@2x.png'))
-						.pipe($.imageResize({width: '50%', height: '50%'}))
-						.pipe($.rename(function(path) {
+						.pipe(imageResize({width: '50%', height: '50%'}))
+						.pipe(rename(function(path) {
 							path.basename = path.basename.slice(0, -3);  //remove @2x label
 						}))
-						.pipe(gulp.dest(path.join(dir, folder));
+						.pipe(gulp.dest(path.join(dir, folder)));
 				
 					var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith({
 						retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
