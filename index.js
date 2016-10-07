@@ -124,7 +124,16 @@ module.exports = {
 		});
 
 
-		gulp.task('css:sprites', function(callback){
+		gulp.task('css:sprites:resize', function(){
+			return gulp.src(config.source.sprites + '/**/*@2x.png')
+				.pipe(imageResize({imageMagick: true, width: '50%', height: '50%'}))
+				.pipe(rename(function(path) {
+					path.basename = path.basename.slice(0, -3);  //remove @2x label
+				}))
+				.pipe(gulp.dest(config.source.sprites));
+		});
+		
+		gulp.task('css:sprites', ['css:sprites:resize'], function(callback){
 			var dir = config.source.sprites,
 				stream;
 
@@ -139,13 +148,6 @@ module.exports = {
 					return fs.statSync(path.join(dir, file)).isDirectory();
 				})
 				.map(function(folder){
-					gulp.src(path.join(dir, folder, '/*@2x.png'))
-						.pipe(imageResize({width: '50%', height: '50%'}))
-						.pipe(rename(function(path) {
-							path.basename = path.basename.slice(0, -3);  //remove @2x label
-						}))
-						.pipe(gulp.dest(path.join(dir, folder)));
-				
 					var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith({
 						retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
 						retinaImgName: folder + '-2x.png',
