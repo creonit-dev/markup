@@ -23,7 +23,6 @@ module.exports = {
 		var sort = require('gulp-sort');
 		var replace = require('gulp-replace');
 		var through = require('through');
-		var imageResize = require('gulp-image-resize');
 		var rename = require('gulp-rename');
 		var spritesStorage;
 		var svgStorage;
@@ -122,18 +121,8 @@ module.exports = {
 
 			return stream;
 		});
-
-
-		gulp.task('css:sprites:resize', function(){
-			return gulp.src(config.source.sprites + '/**/*@2x.png')
-				.pipe(imageResize({imageMagick: true, width: '50%', height: '50%'}))
-				.pipe(rename(function(path) {
-					path.basename = path.basename.slice(0, -3);  //remove @2x label
-				}))
-				.pipe(gulp.dest(config.source.sprites));
-		});
-		
-		gulp.task('css:sprites', ['css:sprites:resize'], function(callback){
+	
+		gulp.task('css:sprites', function(callback){
 			var dir = config.source.sprites,
 				stream;
 
