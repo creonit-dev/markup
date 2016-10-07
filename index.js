@@ -23,6 +23,7 @@ module.exports = {
 		var sort = require('gulp-sort');
 		var replace = require('gulp-replace');
 		var through = require('through');
+		var imageResize = require('gulp-image-resize');
 		var spritesStorage;
 		var svgStorage;
 
@@ -77,9 +78,32 @@ module.exports = {
 			return stream;
 		});
 
+		function unquote (str) {
+			return str.replace(/^[\'\"]|[\'\"]$/g, '');
+		}
+
 		gulp.task('css:stylus', function(callback){
 			var stream = gulp.src([config.source.css + '/*.styl'])
-				.pipe(stylus({use: [nib(), function(stylus){
+				.pipe(stylus({use: [nib(),
+					function(stylus){
+						stylus
+							.define('str-replace', function (string, match, value) {
+								// Replace matching chars in string and replace with needed value
+								return unquote(string.toString()).replace(new RegExp(unquote(match.toString()), 'gm'), unquote(value.toString()));
+							})
+							.define('str-split', function (string, match) {
+								return unquote(string.toString()).split(unquote(match.toString()));
+							})
+							.define('str-indexOf', function (match, string) {
+								return unquote(string.toString()).indexOf(unquote(match.toString()));
+							})
+							.define('str-to-base64', function (string) {
+								// Encode string to base64 format
+								return new Buffer(unquote(string.toString())).toString('base64');
+							});
+					},
+
+					function(stylus){
 					stylus.define('$sprites-timestamp', (new Date).getTime());
 					stylus.define('$sprites', stylusUtils.coerceObject(spritesStorage, true));
 					stylus.define('$svg', stylusUtils.coerceObject(svgStorage, true));
@@ -114,11 +138,20 @@ module.exports = {
 					return fs.statSync(path.join(dir, file)).isDirectory();
 				})
 				.map(function(folder){
+					gulp.src(path.join(dir, folder, '/*@2x.png'))
+						.pipe($.imageResize({width: '50%', height: '50%'}))
+						.pipe($.rename(function(path) {
+							path.basename = path.basename.slice(0, -3);  //remove @2x label
+						}))
+						.pipe(gulp.dest(path.join(dir, folder));
+				
 					var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith({
+						retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
+						retinaImgName: folder + '-2x.png',
 						imgName: folder + '.png',
 						cssName: folder,
-						cssFormat: 'json',
-						algorithm: 'binary-tree'
+						cssFormat: 'json_retina',
+						algorithm: 'top-down'
 					}));
 
 					data.img.pipe(gulp.dest(config.destination.sprites));
