@@ -65,7 +65,7 @@ module.exports = {
 							svgStorage[path.basename(file.path, '.svg')] = {
 								width: size[1],
 								height: size[2],
-								icon: icon.replace(/[{}\|\\\^~\[\]`"<>%]/g, function(match) {
+								icon: icon.replace(/[{}\|\\\^~\[\]`"<>#%]/g, function(match) {
 									return '%' + match[0].charCodeAt(0).toString(16).toUpperCase();
 								}).trim()
 							};
