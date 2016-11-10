@@ -349,6 +349,11 @@ module.exports = {
 
 		gulp.task('external:build', function(callback){
 			config.external = true;
+					
+			for(var i in config.destination){
+				config.destination[i] = './../' + config.destination[i];
+			}
+			
 			run(['css', 'js', 'fonts', 'images', 'video'], callback);
 		});
 	}
