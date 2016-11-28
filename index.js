@@ -40,7 +40,6 @@ module.exports = {
 			run(['css:sprites', 'css:svg', 'css:vendor'], 'css:stylus', callback);
 		});
 
-
 		gulp.task('css:svg:update', function(callback){
 			run('css:svg', 'css:stylus', callback);
 		});
@@ -357,6 +356,12 @@ module.exports = {
 		});
 
 		gulp.task('build', function(callback){
+			if(config.external){
+				for(var i in config.destination){
+					config.destination[i] = './../' + config.destination[i];
+				}
+			}
+		
 			run(['css', 'js', 'fonts', 'images', 'video', 'html'], callback);
 		});
 
