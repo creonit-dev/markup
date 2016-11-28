@@ -327,7 +327,7 @@ module.exports = {
 			browserSync = require('browser-sync');
 
 			if(config.external){
-				browserSync({proxy: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000});
+				browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000});
 			}else{
 				browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false});
 			}
