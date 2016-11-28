@@ -327,9 +327,9 @@ module.exports = {
 			browserSync = require('browser-sync');
 
 			if(config.external){
-				browserSync({proxy: path.basename(__dirname.replace(/[\/\\]markup$/, '')), open: false, notify: false, ghostMode: false, ui: false, port: 4000});
+				browserSync({proxy: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000});
 			}else{
-				browserSync({server: {baseDir: './web'}, open: false, notify: false, ghostMode: false, ui: false});
+				browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false});
 			}
 		});
 
