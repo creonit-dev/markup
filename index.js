@@ -1,5 +1,5 @@
 module.exports = {
-	gulp: function(gulp){
+	gulp: function(gulp, build){
 		
 		var gulpif = require('gulp-if');
 		var stylus = require('gulp-stylus');
@@ -18,6 +18,7 @@ module.exports = {
 		var browserSync;
 		var nib = require('nib');
 		var merge = require('merge-stream');
+		var mergeObjects = require('merge');
 		var path = require('path');
 		var fs = require('fs');
 		var sort = require('gulp-sort');
@@ -30,6 +31,10 @@ module.exports = {
 		var process = require('process');
 		var production = process.env.NODE_ENV === 'production';
 		var config = require('./package.json').build;
+		
+		if(build){
+			config = mergeObjects.recursive(true, config, build);
+		}
 		
 		gulp.task('css', function (callback){
 			run(['css:sprites', 'css:svg', 'css:vendor'], 'css:stylus', callback);
@@ -137,15 +142,27 @@ module.exports = {
 					return fs.statSync(path.join(dir, file)).isDirectory();
 				})
 				.map(function(folder){
-					var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith({
-						retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
-						retinaImgName: folder + '-2x.png',
-						imgName: folder + '.png',
-						cssName: folder,
-						cssFormat: 'json_retina',
-						algorithm: 'top-down'
-					}));
-
+					var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith(
+						config.retina
+							?
+								{
+									retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
+									retinaImgName: folder + '-2x.png',
+									imgName: folder + '.png',
+									cssName: folder,
+									cssFormat: 'json_retina',
+									algorithm: 'top-down'
+								}
+							:
+								{
+									imgName: folder + '.png',
+									cssName: folder,
+									cssFormat: 'json',
+									algorithm: 'top-down'
+								}
+					
+					));
+			
 					data.img.pipe(gulp.dest(config.destination.sprites));
 					return data.css;
 				});

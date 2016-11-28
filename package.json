@@ -1,6 +1,6 @@
 {
   "name": "creonit-markup",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Creonit markup",
   "author": "Creonit <dev@creonit.ru>",
   "license": "MIT",
@@ -48,6 +48,7 @@
     "gulp.spritesmith": "^6.2.1",
     "main-bower-files": "^2.13.1",
     "merge-stream": "^1.0.0",
+	"merge": "^1.2.0",
     "nib": "^1.1.2",
     "run-sequence": "^1.2.2",
     "streamqueue": "^1.1.1",
