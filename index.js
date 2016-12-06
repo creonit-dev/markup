@@ -325,9 +325,16 @@ module.exports = {
 
 		gulp.task('server', function(){
 			browserSync = require('browser-sync');
+			var proxy;
 
 			if(config.external){
-				browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000});
+				proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i);
+				browserSync(
+					proxy
+						? {proxy: proxy[1], open: false, notify: false, ghostMode: false, ui: false, port: 4000}
+						: {server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
+
+				);
 			}else{
 				browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false});
 			}
