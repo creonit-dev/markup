@@ -1,6 +1,6 @@
 {
   "name": "creonit-markup",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Creonit markup",
   "author": "Creonit <dev@creonit.ru>",
   "license": "MIT",
@@ -42,7 +42,7 @@
     "gulp-sort": "^2.0.0",
     "gulp-stylus": "^2.5.0",
     "gulp-svgmin": "^1.2.3",
-    "gulp-twig": "^0.5.0",
+    "gulp-twig": "^0.7.0",
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "gulp.spritesmith": "^6.2.1",
