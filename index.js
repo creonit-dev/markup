@@ -303,8 +303,6 @@ module.exports = {
 			return gulp.src(config.source.video + '/**/*').pipe(gulp.dest(config.destination.video));
 		});
 
-
-
 		gulp.task('html', function(callback){
 			if(!fs.existsSync(config.source.html)){
 				return callback();
@@ -316,7 +314,9 @@ module.exports = {
 				.pipe(gulp.dest(config.destination.html));
 
 			if(browserSync){
-				stream.pipe(browserSync.reload({stream: true}));
+				stream.on('end', function() {
+					browserSync.reload()
+				});
 			}
 
 			return stream;
