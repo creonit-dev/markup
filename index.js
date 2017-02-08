@@ -119,8 +119,8 @@ module.exports = {
 				})
 				.pipe(gulpif(production, cssmin()))
 				.pipe(gulp.dest(config.destination.css))
-				.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-				.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+				.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+				.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 
 			if(browserSync){
 				stream.pipe(browserSync.reload({stream: true}));
@@ -207,8 +207,8 @@ module.exports = {
 			stream
 				.pipe(concat('vendor.css'))
 				.pipe(gulp.dest(config.destination.css))
-				.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-				.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+				.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+				.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 
 			return stream;
 		});
@@ -237,8 +237,8 @@ module.exports = {
 						.pipe(concat(folder + '.js'))
 						.pipe(gulpif(production, uglify()))
 						.pipe(gulp.dest(dest))
-						.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-						.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+						.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+						.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 				});
 
 			stream = merge(
@@ -248,8 +248,8 @@ module.exports = {
 					.pipe(concat('common.js'))
 					.pipe(gulpif(production, uglify()))
 					.pipe(gulp.dest(dest))
-					.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-					.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)))
+					.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+					.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)))
 			);
 
 			if(browserSync){
@@ -275,8 +275,8 @@ module.exports = {
 				.pipe(concat('vendor.js'))
 				.pipe(gulpif(production, uglify()))
 				.pipe(gulp.dest(config.destination.js))
-				.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-				.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+				.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+				.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 
 			if(browserSync){
 				stream.pipe(browserSync.reload({stream: true}));
@@ -302,15 +302,15 @@ module.exports = {
 					)
 					.pipe(gulpif(production, imagemin()))
 					.pipe(gulp.dest(config.destination.images + '/vendor'))
-					.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-					.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+					.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+					.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 			}
 
 			return gulp.src(config.source.images + '/**/*')
 				.pipe(gulpif(production, imagemin()))
 				.pipe(gulp.dest(config.destination.images))
-				.pipe(gulpif(config.external && config.buster, buster({relativePath: '../web/'})))
-				.pipe(gulpif(config.external && config.buster, gulp.dest(config.buster.path)));
+				.pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
+				.pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 		});
 
 
