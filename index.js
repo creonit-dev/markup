@@ -3,6 +3,7 @@ module.exports = {
 
         var gulpif = require('gulp-if');
         var stylus = require('gulp-stylus');
+		var rupture = require('rupture');
         var cssmin = require('gulp-cssmin');
         var svgmin = require('gulp-svgmin');
         var imagemin = require('gulp-imagemin');
@@ -95,6 +96,7 @@ module.exports = {
                 .pipe(stylus({
                     use: [
                         nib(),
+						rupture(),
                         function(stylus){
                             stylus
                                 .define('str-replace', function (string, match, value) {
