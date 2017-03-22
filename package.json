@@ -1,6 +1,6 @@
 {
   "name": "creonit-markup",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Creonit markup",
   "author": "Creonit <dev@creonit.ru>",
   "repository": {
@@ -14,23 +14,26 @@
   },
   "build": {
     "source": {
-      "js": "./src/js",
-      "css": "./src/css",
-      "html": "./src/html",
-      "fonts": "./src/fonts",
-      "video": "./src/video",
-      "images": "./src/images",
-      "svg": "./src/svg",
-      "sprites": "./src/sprites"
+      "path": "./src",
+      "js": "/js",
+      "css": "/css",
+      "html": "/html",
+      "fonts": "/fonts",
+      "video": "/video",
+      "images": "/images",
+      "svg": "/svg",
+      "sprites": "/sprites"
     },
     "destination": {
-      "js": "./web/js",
-      "css": "./web/css",
-      "images": "./web/images",
-      "fonts": "./web/fonts",
-      "video": "./web/video",
-      "sprites": "./web/sprites",
-      "html": "./web"
+      "path": "./web",
+      "external_path": "./../web",
+      "js": "/js",
+      "css": "/css",
+      "images": "/images",
+      "fonts": "/fonts",
+      "video": "/video",
+      "sprites": "/sprites",
+      "html": ""
     },
     "buster": {
       "path": "./../var"

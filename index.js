@@ -3,7 +3,7 @@ module.exports = {
 
         var gulpif = require('gulp-if');
         var stylus = require('gulp-stylus');
-		var rupture = require('rupture');
+        var rupture = require('rupture');
         var cssmin = require('gulp-cssmin');
         var svgmin = require('gulp-svgmin');
         var imagemin = require('gulp-imagemin');
@@ -40,7 +40,22 @@ module.exports = {
             config = mergeObjects.recursive(true, config, build);
         }
 
-        gulp.task('css', function (callback){
+        if(config.source.path){
+            for(var i in config.source){
+                if(i == 'path') continue;
+                config.source[i] = config.source.path + config.source[i];
+            }
+        }
+
+        if(!config.destination.external_path){
+            config.destination.external_path = './../web';
+        }
+
+        if(!config.destination.path){
+            config.destination.path = '';
+        }
+
+        gulp.task('css', function(callback){
             run(['css:sprites', 'css:svg', 'css:vendor'], 'css:stylus', callback);
         });
 
@@ -58,10 +73,10 @@ module.exports = {
             var stream = gulp.src([config.source.svg + '/**/*.svg'])
                     .pipe(svgmin())
                     .pipe(cheerio({
-                        run: function ($) {
+                        run: function($){
                             $('svg').attr('preserveAspectRatio', 'none');
                         },
-                        parserOptions: { xmlMode: true }
+                        parserOptions: {xmlMode: true}
                     }))
                     .pipe(replace('&gt;', '>'))
                     .pipe(through(
@@ -73,7 +88,7 @@ module.exports = {
                                 svgStorage[path.basename(file.path, '.svg')] = {
                                     width: size[1],
                                     height: size[2],
-                                    icon: icon.replace(/[{}\|\\\^~\[\]`"<>#%]/g, function(match) {
+                                    icon: icon.replace(/[{}\|\\\^~\[\]`"<>#%]/g, function(match){
                                         return '%' + match[0].charCodeAt(0).toString(16).toUpperCase();
                                     }).trim()
                                 };
@@ -86,7 +101,7 @@ module.exports = {
             return stream;
         });
 
-        function unquote (str) {
+        function unquote(str){
             return str.replace(/^[\'\"]|[\'\"]$/g, '');
         }
 
@@ -96,20 +111,20 @@ module.exports = {
                 .pipe(stylus({
                     use: [
                         nib(),
-						rupture(),
+                        rupture(),
                         function(stylus){
                             stylus
-                                .define('str-replace', function (string, match, value) {
+                                .define('str-replace', function(string, match, value){
                                     // Replace matching chars in string and replace with needed value
                                     return unquote(string.toString()).replace(new RegExp(unquote(match.toString()), 'gm'), unquote(value.toString()));
                                 })
-                                .define('str-split', function (string, match) {
+                                .define('str-split', function(string, match){
                                     return unquote(string.toString()).split(unquote(match.toString()));
                                 })
-                                .define('str-indexOf', function (match, string) {
+                                .define('str-indexOf', function(match, string){
                                     return unquote(string.toString()).indexOf(unquote(match.toString()));
                                 })
-                                .define('str-to-base64', function (string) {
+                                .define('str-to-base64', function(string){
                                     // Encode string to base64 format
                                     return new Buffer(unquote(string.toString())).toString('base64');
                                 });
@@ -157,22 +172,21 @@ module.exports = {
                     var data = gulp.src(path.join(dir, folder, '/*.png')).pipe(spritesmith(
                         config.retina
                             ?
-                        {
-                            retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
-                            retinaImgName: folder + '-2x.png',
-                            imgName: folder + '.png',
-                            cssName: folder,
-                            cssFormat: 'json_retina',
-                            algorithm: 'top-down'
-                        }
+                            {
+                                retinaSrcFilter: path.join(dir, folder, '/*@2x.png'),
+                                retinaImgName: folder + '-2x.png',
+                                imgName: folder + '.png',
+                                cssName: folder,
+                                cssFormat: 'json_retina',
+                                algorithm: 'top-down'
+                            }
                             :
-                        {
-                            imgName: folder + '.png',
-                            cssName: folder,
-                            cssFormat: 'json',
-                            algorithm: 'top-down'
-                        }
-
+                            {
+                                imgName: folder + '.png',
+                                cssName: folder,
+                                cssFormat: 'json',
+                                algorithm: 'top-down'
+                            }
                     ));
 
                     data.img.pipe(gulp.dest(config.destination.sprites));
@@ -193,7 +207,6 @@ module.exports = {
 
             return stream;
         });
-
 
 
         gulp.task('css:vendor', function(){
@@ -281,7 +294,9 @@ module.exports = {
             );
 
             if(browserSync){
-                stream.pipe(browserSync.reload({stream: true}));
+                stream.on('end', function(){
+                    browserSync.reload()
+                });
             }
 
             return stream;
@@ -307,7 +322,9 @@ module.exports = {
                 .pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
 
             if(browserSync){
-                stream.pipe(browserSync.reload({stream: true}));
+                stream.on('end', function(){
+                    browserSync.reload()
+                });
             }
 
             return stream;
@@ -360,7 +377,7 @@ module.exports = {
                 .pipe(gulp.dest(config.destination.html));
 
             if(browserSync){
-                stream.on('end', function() {
+                stream.on('end', function(){
                     browserSync.reload()
                 });
             }
@@ -379,7 +396,6 @@ module.exports = {
                     proxy
                         ? {proxy: proxy[1], open: false, notify: false, ghostMode: false, ui: false, port: 4000}
                         : {server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
-
                 );
             }else{
                 browserSync({server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false});
@@ -409,10 +425,12 @@ module.exports = {
         });
 
         gulp.task('build', function(callback){
-            if(config.external){
-                for(var i in config.destination){
-                    config.destination[i] = './../' + config.destination[i];
-                }
+            var base_path = config.external ? config.destination.external_path : config.destination.path;
+
+            for(var i in config.destination){
+                if(i == 'path') continue;
+                if(i == 'external_path') continue;
+                config.destination[i] = base_path + config.destination[i];
             }
 
             run(['css', 'js', 'fonts', 'images', 'video', 'html'], callback);
@@ -426,7 +444,9 @@ module.exports = {
             config.external = true;
 
             for(var i in config.destination){
-                config.destination[i] = './../' + config.destination[i];
+                if(i == 'path') continue;
+                if(i == 'external_path') continue;
+                config.destination[i] = config.destination.external_path + config.destination[i];
             }
 
             run(['css', 'js', 'fonts', 'images', 'video'], callback);
