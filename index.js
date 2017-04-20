@@ -364,7 +364,7 @@ module.exports = {
         });
 
         gulp.task('html', function(callback){
-            if(!fs.existsSync(config.source.html)){
+            if(config.external || !fs.existsSync(config.source.html)){
                 return callback();
             }
 
