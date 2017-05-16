@@ -391,10 +391,15 @@ module.exports = {
             var proxy;
 
             if(config.external){
-                proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i);
+                if(config.proxy){
+                    proxy = config.proxy;
+                }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i)){
+                    proxy = proxy[1];
+                }
+
                 browserSync(
                     proxy
-                        ? {proxy: proxy[1], open: false, notify: false, ghostMode: false, ui: false, port: 4000}
+                        ? {proxy: proxy, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
                         : {server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
                 );
             }else{
