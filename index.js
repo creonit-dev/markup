@@ -67,7 +67,7 @@ module.exports = {
                 entries: config.source.app + '/index.js',
                 debug: !production
             })
-                .transform(babelify, {presets: ['es2015', 'react']})
+            .transform(babelify, {presets: ['es2015', 'react'], plugins: ['transform-object-rest-spread']})
 
             var stream = b.bundle()
                 .on('error', function(error){
