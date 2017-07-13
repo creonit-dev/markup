@@ -312,7 +312,8 @@ module.exports = {
                     .pipe(sort())
                     .pipe(gulpif(!production, sourcemaps.init()))
                     .pipe(babel({
-                        presets: ['es2015']
+                        presets: ['es2015'],
+                        plugins: ['transform-object-rest-spread']
                     }))
                     .on('error', function(error){
                         console.log('Error: ' + error.message);
