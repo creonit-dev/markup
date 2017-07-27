@@ -261,6 +261,7 @@ module.exports = {
 
             stream
                 .pipe(concat('vendor.css'))
+                .pipe(gulpif(production, cssmin()))
                 .pipe(gulp.dest(config.destination.css))
                 .pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
                 .pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
