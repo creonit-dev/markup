@@ -31,6 +31,9 @@ module.exports = {
         var babel = require('gulp-babel');
         var spritesStorage;
         var svgStorage;
+        var browserify = require('browserify');
+        var babelify = require('babelify');
+        var source = require('vinyl-source-stream');
 
         var process = require('process');
         var production = process.env.NODE_ENV === 'production';
@@ -55,6 +58,35 @@ module.exports = {
             config.destination.path = '';
         }
 
+        gulp.task('app', function(callback){
+            if(!fs.existsSync(config.source.app)){
+                return callback();
+            }
+
+            const b = browserify({
+                entries: config.source.app + '/index.js',
+                debug: !production
+            })
+            .transform(babelify, {presets: ['es2015', 'react'], plugins: ['transform-object-rest-spread']})
+
+            var stream = b.bundle()
+                .on('error', function(error){
+                    console.log('Error: ' + error.message);
+                    this.emit('end');
+                })
+                .pipe(source('app.js'))
+                .pipe(gulp.dest(config.destination.app));
+
+            if(browserSync){
+                stream.on('end', function(){
+                    browserSync.reload()
+                });
+            }
+
+            return stream;
+        });
+
+
         gulp.task('css', function(callback){
             run(['css:sprites', 'css:svg', 'css:vendor'], 'css:stylus', callback);
         });
@@ -71,32 +103,32 @@ module.exports = {
             svgStorage = {};
 
             var stream = gulp.src([config.source.svg + '/**/*.svg'])
-                    .pipe(svgmin())
-                    .pipe(cheerio({
-                        run: function($){
-                            $('svg').attr('preserveAspectRatio', 'none');
-                        },
-                        parserOptions: {xmlMode: true}
-                    }))
-                    .pipe(replace('&gt;', '>'))
-                    .pipe(through(
-                        function(file){
-                            var icon = file.contents.toString();
-                            var size = icon.match(/viewBox="[\d\.]+ [\d\.]+ ([\d\.]+) ([\d\.]+)"/i);
+                .pipe(svgmin())
+                .pipe(cheerio({
+                    run: function($){
+                        $('svg').attr('preserveAspectRatio', 'none');
+                    },
+                    parserOptions: {xmlMode: true}
+                }))
+                .pipe(replace('&gt;', '>'))
+                .pipe(through(
+                    function(file){
+                        var icon = file.contents.toString();
+                        var size = icon.match(/viewBox="[\d\.]+ [\d\.]+ ([\d\.]+) ([\d\.]+)"/i);
 
-                            if(size){
-                                svgStorage[path.basename(file.path, '.svg')] = {
-                                    width: size[1],
-                                    height: size[2],
-                                    icon: icon.replace(/[{}\|\\\^~\[\]`"<>#%]/g, function(match){
-                                        return '%' + match[0].charCodeAt(0).toString(16).toUpperCase();
-                                    }).trim()
-                                };
-                            }
-
+                        if(size){
+                            svgStorage[path.basename(file.path, '.svg')] = {
+                                width: size[1],
+                                height: size[2],
+                                icon: icon.replace(/[{}\|\\\^~\[\]`"<>#%]/g, function(match){
+                                    return '%' + match[0].charCodeAt(0).toString(16).toUpperCase();
+                                }).trim()
+                            };
                         }
-                    ))
-                ;
+
+                    }
+                ))
+            ;
 
             return stream;
         });
@@ -138,8 +170,8 @@ module.exports = {
                     ]
                 }))
                 .on('error', function(error){
-                    console.log(error.message);
-                    callback();
+                    console.log('Error: ' + error.message);
+                    this.emit('end');
                 })
                 .pipe(gulpif(!production, sourcemaps.write()))
                 .pipe(gulpif(production, cssmin()))
@@ -260,11 +292,12 @@ module.exports = {
                         .pipe(sort())
                         .pipe(gulpif(!production, sourcemaps.init()))
                         .pipe(babel({
-                            presets: ['es2015']
+                            presets: ['es2015'],
+                            plugins: ['transform-object-rest-spread']
                         }))
                         .on('error', function(error){
-                            console.log(error.message);
-                            callback();
+                            console.log('Error: ' + error.message);
+                            this.emit('end');
                         })
                         .pipe(concat(folder + '.js'))
                         .pipe(gulpif(!production, sourcemaps.write('.')))
@@ -280,11 +313,12 @@ module.exports = {
                     .pipe(sort())
                     .pipe(gulpif(!production, sourcemaps.init()))
                     .pipe(babel({
-                        presets: ['es2015']
+                        presets: ['es2015'],
+                        plugins: ['transform-object-rest-spread']
                     }))
                     .on('error', function(error){
-                        console.log(error.message);
-                        callback();
+                        console.log('Error: ' + error.message);
+                        this.emit('end');
                     })
                     .pipe(concat('common.js'))
                     .pipe(gulpif(!production, sourcemaps.write('.')))
@@ -321,12 +355,6 @@ module.exports = {
                 .pipe(gulp.dest(config.destination.js))
                 .pipe(gulpif(production && config.external && config.buster, buster({relativePath: '../web/'})))
                 .pipe(gulpif(production && config.external && config.buster, gulp.dest(config.buster.path)));
-
-            if(browserSync){
-                stream.on('end', function(){
-                    browserSync.reload()
-                });
-            }
 
             return stream;
         });
@@ -372,8 +400,8 @@ module.exports = {
             var stream = gulp.src(config.source.html + '/*.twig')
                 .pipe(twig(/*{data: JSON.parse(fs.readFileSync(config.source.html + '/data.json'))}*/))
                 .on('error', function(error){
-                    console.log(error.message);
-                    callback();
+                    console.log('Error: ' + error.message);
+                    this.emit('end');
                 })
                 .pipe(gulp.dest(config.destination.html));
 
@@ -392,10 +420,15 @@ module.exports = {
             var proxy;
 
             if(config.external){
-                proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i);
+                if(config.proxy){
+                    proxy = config.proxy;
+                }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i)){
+                    proxy = proxy[1];
+                }
+
                 browserSync(
                     proxy
-                        ? {proxy: proxy[1], open: false, notify: false, ghostMode: false, ui: false, port: 4000}
+                        ? {proxy: proxy, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
                         : {server: config.destination.html, open: false, notify: false, ghostMode: false, ui: false, port: 4000}
                 );
             }else{
@@ -409,6 +442,7 @@ module.exports = {
                 gulp.watch(config.source.html + '/**/*.twig', ['html']);
             }
 
+            gulp.watch(config.source.app + '/**/*.js', ['app']);
             gulp.watch(config.source.css + '/**/*.styl', ['css:stylus']);
             gulp.watch(config.source.css + '/vendor/*.css', ['css:vendor']);
             gulp.watch([config.source.js + '/**/*.js', '!' + config.destination.js + '/vendor/**/*.js'], ['js']);
@@ -434,7 +468,7 @@ module.exports = {
                 config.destination[i] = base_path + config.destination[i];
             }
 
-            run(['css', 'js', 'fonts', 'images', 'video', 'html'], callback);
+            run(['app', 'css', 'js', 'fonts', 'images', 'video', 'html'], callback);
         });
 
         gulp.task('external', function(callback){
@@ -450,7 +484,7 @@ module.exports = {
                 config.destination[i] = config.destination.external_path + config.destination[i];
             }
 
-            run(['css', 'js', 'fonts', 'images', 'video'], callback);
+            run(['app', 'css', 'js', 'fonts', 'images', 'video'], callback);
         });
     }
 };
