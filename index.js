@@ -1,6 +1,7 @@
 module.exports = {
     gulp: function(gulp, build){
 
+		var nodemon = require('gulp-nodemon');
         var gulpif = require('gulp-if');
         var stylus = require('gulp-stylus');
         var rupture = require('rupture');
@@ -419,7 +420,10 @@ module.exports = {
             browserSync = require('browser-sync');
             var proxy;
 
-            if(config.external){
+			if(config.express){
+				browserSync({proxy: config.express === true ? 'http://localhost:3500/' : config.express, open: false, notify: false, ghostMode: false, ui: false, port: 3000});
+				
+			}else if(config.external){
                 if(config.proxy){
                     proxy = config.proxy;
                 }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i)){
@@ -454,7 +458,26 @@ module.exports = {
             gulp.watch(config.source.sprites + '/**/*', ['css:sprites:update']);
         });
 
+		gulp.task('express:start', function (cb) {
+			var started = false;
+			return nodemon({
+				script: 'app.js',
+				watch: ['routing.yml', 'app.js']
+			}).on('start', function () {
+				if (!started) {
+					cb();
+					started = true;
+				}
+			});
+		});
 
+		gulp.task('express', function(callback){
+			if(!('express' in config)){
+				config.express = true;
+			}
+			run('build', 'express:start', 'watch', callback);
+		});
+		
         gulp.task('default', function(callback){
             run('build', 'watch', callback);
         });
@@ -486,5 +509,7 @@ module.exports = {
 
             run(['app', 'css', 'js', 'fonts', 'images', 'video'], callback);
         });
+		
+
     }
 };
