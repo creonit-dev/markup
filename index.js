@@ -426,7 +426,7 @@ module.exports = {
 			}else if(config.external){
                 if(config.proxy){
                     proxy = config.proxy;
-                }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.dev)[\\\/]markup?/i)){
+                }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.(?:dev|test|localhost))[\\\/]markup?/i)){
                     proxy = proxy[1];
                 }
 
