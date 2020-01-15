@@ -1,6 +1,6 @@
 {
   "name": "creonit-markup",
-  "version": "1.5.4",
+  "version": "1.5.6",
   "description": "Creonit markup",
   "author": "Creonit <dev@creonit.ru>",
   "repository": {
@@ -75,6 +75,7 @@
     "nib": "^1.1.2",
     "run-sequence": "^1.2.2",
     "streamqueue": "^1.1.1",
-    "through": "^2.3.8"
+    "through": "^2.3.8",
+    "gulp-nodemon": "^2.2.1"
   }
 }
