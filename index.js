@@ -513,7 +513,7 @@ module.exports = {
                 config.destination[i] = base_path + config.destination[i];
             }
 
-            run(['app', /*'css',*/ 'js', /*'fonts', 'images', 'video', 'html'*/], callback);
+            run(['app', 'css', 'js', 'fonts', 'images', 'video', 'html'], callback);
         });
 
         gulp.task('external', function(callback){
