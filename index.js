@@ -1,7 +1,7 @@
 module.exports = {
     gulp: function(gulp, build){
 
-		var nodemon = require('gulp-nodemon');
+        var nodemon = require('gulp-nodemon');
         var gulpif = require('gulp-if');
         var stylus = require('gulp-stylus');
         var rupture = require('rupture');
@@ -68,7 +68,17 @@ module.exports = {
                 entries: config.source.app + '/index.js',
                 debug: !production
             })
-            .transform(babelify, {presets: ['es2015', 'react'], plugins: ['transform-object-rest-spread']})
+            .transform(babelify, {
+                presets: [
+                    ['env', {
+                        targets: {
+                            browsers: ['defaults'],
+                        }
+                    }],
+                    'react',
+                ],
+                plugins: ['transform-object-rest-spread']
+            })
 
             var stream = b.bundle()
                 .on('error', function(error){
@@ -292,15 +302,21 @@ module.exports = {
                     return gulp.src(path.join(dir, folder, '/*.js'))
                         .pipe(sort())
                         .pipe(gulpif(!production, sourcemaps.init()))
+                        .pipe(concat(folder + '.js'))
                         .pipe(babel({
-                            presets: ['es2015'],
+                            presets: [
+                                ['env', {
+                                    targets: {
+                                        browsers: ['defaults'],
+                                    }
+                                }],
+                            ],
                             plugins: ['transform-object-rest-spread']
                         }))
                         .on('error', function(error){
                             console.log('Error: ' + error.message);
                             this.emit('end');
                         })
-                        .pipe(concat(folder + '.js'))
                         .pipe(gulpif(!production, sourcemaps.write('.')))
                         .pipe(gulpif(production, uglify()))
                         .pipe(gulp.dest(dest))
@@ -313,15 +329,21 @@ module.exports = {
                 gulp.src(dir + '/*.js')
                     .pipe(sort())
                     .pipe(gulpif(!production, sourcemaps.init()))
-                    .pipe(babel({
-                        presets: ['es2015'],
-                        plugins: ['transform-object-rest-spread']
-                    }))
                     .on('error', function(error){
                         console.log('Error: ' + error.message);
                         this.emit('end');
                     })
                     .pipe(concat('common.js'))
+                    .pipe(babel({
+                        presets: [
+                            ['env', {
+                                targets: {
+                                    browsers: ['defaults'],
+                                }
+                            }],
+                        ],
+                        plugins: ['transform-object-rest-spread']
+                    }))
                     .pipe(gulpif(!production, sourcemaps.write('.')))
                     .pipe(gulpif(production, uglify()))
                     .pipe(gulp.dest(dest))
@@ -420,10 +442,10 @@ module.exports = {
             browserSync = require('browser-sync');
             var proxy;
 
-			if(config.express){
-				browserSync({proxy: config.express === true ? 'http://localhost:3500/' : config.express, open: false, notify: false, ghostMode: false, ui: false, port: 3000});
-				
-			}else if(config.external){
+            if(config.express){
+                browserSync({proxy: config.express === true ? 'http://localhost:3500/' : config.express, open: false, notify: false, ghostMode: false, ui: false, port: 3000});
+
+            }else if(config.external){
                 if(config.proxy){
                     proxy = config.proxy;
                 }else if(proxy = process.cwd().match(/[\\\/]([\w_-]+\.(?:dev|test|localhost))[\\\/]markup?/i)){
@@ -458,26 +480,26 @@ module.exports = {
             gulp.watch(config.source.sprites + '/**/*', ['css:sprites:update']);
         });
 
-		gulp.task('express:start', function (cb) {
-			var started = false;
-			return nodemon({
-				script: 'app.js',
-				watch: ['routing.yml', 'app.js']
-			}).on('start', function () {
-				if (!started) {
-					cb();
-					started = true;
-				}
-			});
-		});
+        gulp.task('express:start', function (cb) {
+            var started = false;
+            return nodemon({
+                script: 'app.js',
+                watch: ['routing.yml', 'app.js']
+            }).on('start', function () {
+                if (!started) {
+                    cb();
+                    started = true;
+                }
+            });
+        });
 
-		gulp.task('express', function(callback){
-			if(!('express' in config)){
-				config.express = true;
-			}
-			run('build', 'express:start', 'watch', callback);
-		});
-		
+        gulp.task('express', function(callback){
+            if(!('express' in config)){
+                config.express = true;
+            }
+            run('build', 'express:start', 'watch', callback);
+        });
+
         gulp.task('default', function(callback){
             run('build', 'watch', callback);
         });
@@ -491,7 +513,7 @@ module.exports = {
                 config.destination[i] = base_path + config.destination[i];
             }
 
-            run(['app', 'css', 'js', 'fonts', 'images', 'video', 'html'], callback);
+            run(['app', /*'css',*/ 'js', /*'fonts', 'images', 'video', 'html'*/], callback);
         });
 
         gulp.task('external', function(callback){
@@ -509,7 +531,7 @@ module.exports = {
 
             run(['app', 'css', 'js', 'fonts', 'images', 'video'], callback);
         });
-		
+
 
     }
 };
