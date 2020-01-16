@@ -29,12 +29,45 @@ module.exports = {
         var rename = require('gulp-rename');
         var buster = require('gulp-buster');
         var sourcemaps = require('gulp-sourcemaps');
-        var babel = require('gulp-babel');
         var spritesStorage;
         var svgStorage;
         var browserify = require('browserify');
         var babelify = require('babelify');
         var source = require('vinyl-source-stream');
+
+        var rollup = require('gulp-better-rollup');
+        var rollupBabel = require('rollup-plugin-babel');
+        var rollupResolveNode = require('rollup-plugin-node-resolve');
+        var rollupResolveCommon = require('rollup-plugin-commonjs');
+        var rollupConfig = {
+            plugins: [
+                rollupResolveNode(),
+                rollupResolveCommon({
+                    include: "node_modules/**"
+                }),
+                rollupBabel({
+                    runtimeHelpers: true,
+                    presets: [
+                        ['@babel/preset-env', {
+                            targets: {
+                                browsers: ['defaults', 'ie 11'],
+                            },
+                        }],
+                    ],
+                    plugins: [
+                        [
+                            "@babel/plugin-transform-runtime",
+                            {
+                                "absoluteRuntime": true,
+                                "helpers": false,
+                                "regenerator": true,
+                                "useESModules": true
+                            }
+                        ]
+                    ]
+                }),
+            ]
+        };
 
         var process = require('process');
         var production = process.env.NODE_ENV === 'production';
@@ -302,21 +335,14 @@ module.exports = {
                     return gulp.src(path.join(dir, folder, '/*.js'))
                         .pipe(sort())
                         .pipe(gulpif(!production, sourcemaps.init()))
-                        .pipe(concat(folder + '.js'))
-                        .pipe(babel({
-                            presets: [
-                                ['env', {
-                                    targets: {
-                                        browsers: ['defaults'],
-                                    }
-                                }],
-                            ],
-                            plugins: ['transform-object-rest-spread']
-                        }))
+                        .pipe(concat(folder + '.bundle.js'))
+                        .pipe(gulp.dest(dest))
+                        .pipe(rollup(rollupConfig, 'umd'))
                         .on('error', function(error){
                             console.log('Error: ' + error.message);
                             this.emit('end');
                         })
+                        .pipe(rename(folder + '.js'))
                         .pipe(gulpif(!production, sourcemaps.write('.')))
                         .pipe(gulpif(production, uglify()))
                         .pipe(gulp.dest(dest))
@@ -333,17 +359,10 @@ module.exports = {
                         console.log('Error: ' + error.message);
                         this.emit('end');
                     })
-                    .pipe(concat('common.js'))
-                    .pipe(babel({
-                        presets: [
-                            ['env', {
-                                targets: {
-                                    browsers: ['defaults'],
-                                }
-                            }],
-                        ],
-                        plugins: ['transform-object-rest-spread']
-                    }))
+                    .pipe(concat('common.bundle.js'))
+                    .pipe(gulp.dest(dest))
+                    .pipe(rollup(rollupConfig, 'umd'))
+                    .pipe(rename('common.js'))
                     .pipe(gulpif(!production, sourcemaps.write('.')))
                     .pipe(gulpif(production, uglify()))
                     .pipe(gulp.dest(dest))
